@@ -1,0 +1,44 @@
+{
+    "modifications": [
+        {
+            "button_id": "ASCRJ_FCP_CRS1_DIRECT_Pushbutton",
+            "knob_id": "ASCRJ_FCP_CRS1_SEL_Knob",
+            "knob_anim_name": "ASCRJ_FCP_CRS1_SEL",
+            "knob_change_name": "ASCRJ_FCP_CRS1_CHANGE",
+            "push_anim_name": "ASCRJ_FCP_CRS1_DIRECT_BTN",
+            "push_name": "ASCRJ_FCP_CRS1_DIRECT"
+        },
+        {
+            "button_id": "ASCRJ_FCP_CRS2_DIRECT_Pushbutton",
+            "knob_id": "ASCRJ_FCP_CRS2_SEL_Knob",
+            "knob_anim_name": "ASCRJ_FCP_CRS2_SEL",
+            "knob_change_name": "ASCRJ_FCP_CRS2_CHANGE",
+            "push_anim_name": "ASCRJ_FCP_CRS2_DIRECT_BTN",
+            "push_name": "ASCRJ_FCP_CRS2_DIRECT"
+        },
+        {
+            "button_id": "ASCRJ_FCP_IAS_MACH_Pushbutton",
+            "knob_id": "ASCRJ_FCP_SPEED_SEL_Knob",
+            "knob_anim_name": "ASCRJ_FCP_SPEED_SEL",
+            "knob_change_name": "ASCRJ_FCP_SPEED_CHANGE",
+            "push_anim_name": "ASCRJ_FCP_IAS_MACH_BTN",
+            "push_name": "ASCRJ_FCP_IAS_MACH"
+        },
+        {
+            "button_id": "ASCRJ_FCP_HDG_SYNC_Pushbutton",
+            "knob_id": "ASCRJ_FCP_HDG_SEL_Knob",
+            "knob_anim_name": "ASCRJ_FCP_HDG_SEL",
+            "knob_change_name": "ASCRJ_FCP_HDG_CHANGE",
+            "push_anim_name": "ASCRJ_FCP_HDG_SYNC_BTN",
+            "push_name": "ASCRJ_FCP_HDG_SYNC"
+        },
+        {
+            "button_id": "ASCRJ_FCP_ALT_CANCEL_Pushbutton",
+            "knob_id": "ASCRJ_FCP_ALT_SEL_Knob",
+            "knob_anim_name": "ASCRJ_FCP_ALT_SEL",
+            "knob_change_name": "ASCRJ_FCP_ALT_CHANGE",
+            "push_anim_name": "ASCRJ_FCP_ALT_CANCEL_BTN",
+            "push_name": "ASCRJ_FCP_ALT_CANCEL"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+# VS directories
+.vs/
+
+# Output directories
+bin/
+obj/
+
+# Local files
+*.user

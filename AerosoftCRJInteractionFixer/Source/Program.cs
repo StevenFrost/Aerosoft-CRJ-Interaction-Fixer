@@ -141,8 +141,11 @@ namespace AerosoftCRJInteractionFixer
 					var KnobNode = ModelBehaviorXML.SelectSingleNode( $"//Component[@ID='{ ModificationEntry.KnobId }']" );
 					var KnobNodeTemplate = KnobNode.FirstChild;
 
-					KnobNodeTemplate.Attributes[ "Name" ].Value = "ASCRJ_Knob_Infinite_Push_Template";
 					KnobNodeTemplate.RemoveAll();
+
+					var Attribute = ModelBehaviorXML.CreateAttribute( "Name" );
+					Attribute.Value = "ASCRJ_Knob_Infinite_Push_Template";
+					KnobNodeTemplate.Attributes.Append( Attribute );
 
 					var KnobAnimNameNode = ModelBehaviorXML.CreateNode( "element", "KNOB_ANIM_NAME", "" );
 					KnobAnimNameNode.InnerText = ModificationEntry.KnobAnimName;
@@ -179,7 +182,7 @@ namespace AerosoftCRJInteractionFixer
 				var PackageContent = new Content();
 				var PackageFileInfo = new FileInfo( File );
 
-				PackageContent.Path = Path.GetRelativePath( PatchPackagePath, File );
+				PackageContent.Path = Path.GetRelativePath( PatchPackagePath, File ).Replace( "\\", "/" );
 				PackageContent.Size = PackageFileInfo.Length;
 				PackageContent.Date = PackageFileInfo.LastWriteTimeUtc.ToFileTimeUtc();
 
@@ -188,7 +191,7 @@ namespace AerosoftCRJInteractionFixer
 
 			WriteFile(
 				Path.Combine( PatchPackagePath, "layout.json" ),
-				JsonSerializer.Serialize( PackageLayout, typeof( Layout ), SerializerOptions )
+				JsonSerializer.Serialize( PackageLayout, typeof( Layout ), SerializerOptions ).Replace( "\r\n", "\n" )
 			);
 		}
 

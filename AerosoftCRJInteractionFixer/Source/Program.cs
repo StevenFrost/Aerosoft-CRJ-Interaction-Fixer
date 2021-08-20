@@ -90,6 +90,8 @@ namespace AerosoftCRJInteractionFixer
 			Log( "Processing Model Behavior Defs" );
 			if ( !ProcessModelBehaviorDefs( OriginalPackagePath, PatchPackagePath ) )
 			{
+				DeleteDirectory( PatchPackagePath );
+
 				WriteFailureMessage();
 				WaitForExit();
 
@@ -99,6 +101,8 @@ namespace AerosoftCRJInteractionFixer
 			Log( "Processing 'CRJ550_Interior.xml' files" );
 			if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_550", "CRJ550_Interior.xml" ) )
 			{
+				DeleteDirectory( PatchPackagePath );
+
 				WriteFailureMessage();
 				WaitForExit();
 
@@ -108,6 +112,8 @@ namespace AerosoftCRJInteractionFixer
 			Log( "Processing 'CRJ700_Interior.xml' files" );
 			if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_700", "CRJ700_Interior.xml" ) )
 			{
+				DeleteDirectory( PatchPackagePath );
+
 				WriteFailureMessage();
 				WaitForExit();
 

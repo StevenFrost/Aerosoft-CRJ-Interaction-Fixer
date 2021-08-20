@@ -14,3 +14,8 @@ Usage
 3. Proceed through the application until it exits
 
 If you wish to uninstall the fix at any point, simply delete the `aerosoft-crj-interaction-fix` package from your community folder.
+
+Known Issues
+------------
+- The weather radar `GCS` pushbutton on the `GAIN` knob is not interactable
+- The weather radar `Push Auto` pushbutton on the `TILT` knob is not interactable

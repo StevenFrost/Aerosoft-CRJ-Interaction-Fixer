@@ -33,7 +33,7 @@ namespace AerosoftCRJInteractionFixer
 		{
 			WriteWelcomeMessage();
 
-			Log( "Searching for MSFS packages path" );
+			Log( $"Locating package '{ OriginalPackageName }'" );
 
 			// Validate that the CRJ exists in the community folder
 			var OriginalPackagePath = GetPackagePath( PackageSource.Community, OriginalPackageName );

@@ -39,6 +39,38 @@
             "knob_change_name": "ASCRJ_FCP_ALT_CHANGE",
             "push_anim_name": "ASCRJ_FCP_ALT_CANCEL_BTN",
             "push_name": "ASCRJ_FCP_ALT_CANCEL"
+        },
+        {
+            "button_id": "ASCRJ_LSP_Nav_Source_XSide_PB",
+            "knob_id": "ASCRJ_LSP_Nav_Source_Knob",
+            "knob_anim_name": "ASCRJ_LSP_NAV_SOURCE",
+            "knob_change_name": "ASCRJ_LSP_NAV_SOURCE_CHANGE",
+            "push_anim_name": "ASCRJ_LSP_NAV_SOURCE_XSIDE_BTN",
+            "push_name": "ASCRJ_LSP_NAV_SOURCE_XSIDE"
+        },
+        {
+            "button_id": "ASCRJ_LSP_Baro_STD_Pushbutton",
+            "knob_id": "ASCRJ_LSP_Baro_Knob",
+            "knob_anim_name": "ASCRJ_LSP_BARO_SEL",
+            "knob_change_name": "ASCRJ_LSP_BARO_CHANGE",
+            "push_anim_name": "ASCRJ_LSP_BARO_STD_BTN",
+            "push_name": "ASCRJ_LSP_BARO_STD"
+        },
+        {
+            "button_id": "ASCRJ_RSP_Nav_Source_XSide_PB",
+            "knob_id": "ASCRJ_RSP_Nav_Source_Knob",
+            "knob_anim_name": "ASCRJ_RSP_NAV_SOURCE",
+            "knob_change_name": "ASCRJ_RSP_NAV_SOURCE_CHANGE",
+            "push_anim_name": "ASCRJ_RSP_NAV_SOURCE_XSIDE_BTN",
+            "push_name": "ASCRJ_RSP_NAV_SOURCE_XSIDE"
+        },
+        {
+            "button_id": "ASCRJ_RSP_Baro_STD_Pushbutton",
+            "knob_id": "ASCRJ_RSP_Baro_Knob",
+            "knob_anim_name": "ASCRJ_RSP_BARO_SEL",
+            "knob_change_name": "ASCRJ_RSP_BARO_CHANGE",
+            "push_anim_name": "ASCRJ_RSP_BARO_STD_BTN",
+            "push_name": "ASCRJ_RSP_BARO_STD"
         }
     ]
 }

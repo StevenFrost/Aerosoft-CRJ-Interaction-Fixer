@@ -4,6 +4,7 @@
 # Output directories
 bin/
 obj/
+Release/
 
 # Local files
 *.user

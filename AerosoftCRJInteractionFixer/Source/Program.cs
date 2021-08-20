@@ -93,6 +93,8 @@ namespace AerosoftCRJInteractionFixer
 
 			GenerateLayout( PatchPackagePath );
 			GenerateManifest( PatchPackagePath, OriginalPackageManifest );
+
+			WriteExitMessage();
 		}
 
 		static void ProcessModelBehaviors( string OriginalPackagePath, string PatchPackagePath, string AirplaneId, string ModelBehaviorFileName )
@@ -313,6 +315,15 @@ namespace AerosoftCRJInteractionFixer
 			Console.Write( Resources.WelcomeMessage.Replace( "{OriginalPackageName}", OriginalPackageName ).Replace( "{PatchPackageName}", PatchPackageName ).Replace( "{OriginalPackageVersionRequirement}", OriginalPackageVersionRequirement ) );
 			Console.ReadKey();
 			Console.WriteLine();
+			Console.WriteLine();
+		}
+
+		static void WriteExitMessage()
+		{
+			Console.WriteLine();
+			Log( "Package generated successfully!" );
+			Console.Write( "Press any key to exit... " );
+			Console.ReadKey();
 			Console.WriteLine();
 		}
 	}

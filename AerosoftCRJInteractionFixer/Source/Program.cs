@@ -39,7 +39,16 @@ namespace AerosoftCRJInteractionFixer
 			var OriginalPackagePath = GetPackagePath( PackageSource.Community, OriginalPackageName );
 			if ( !Directory.Exists( OriginalPackagePath ) )
 			{
-				LogError( $"The directory '{ OriginalPackagePath }' does not exist. Please ensure the MSFS Aerosoft CRJ is installed prior to running this application." );
+				OriginalPackagePath = GetPackagePath( PackageSource.Official, OriginalPackageName );
+			}
+
+			if ( !Directory.Exists( OriginalPackagePath ) )
+			{
+				LogError( $"Failed to locate package '{ OriginalPackageName }'. Please ensure the MSFS Aerosoft CRJ is installed prior to running this application." );
+
+				WriteFailureMessage();
+				WaitForExit();
+
 				return;
 			}
 
@@ -50,6 +59,10 @@ namespace AerosoftCRJInteractionFixer
 			if ( !File.Exists( OriginalPackageManifestPath ) )
 			{
 				LogError( $"Unable to locate the { OriginalPackageName } package manifest file at location '{ OriginalPackageManifestPath }'." );
+
+				WriteFailureMessage();
+				WaitForExit();
+
 				return;
 			}
 
@@ -57,6 +70,10 @@ namespace AerosoftCRJInteractionFixer
 			if ( OriginalPackageManifest.PackageVersion != OriginalPackageVersionRequirement )
 			{
 				LogError( $"The Aerosoft CRJ must be version { OriginalPackageVersionRequirement }. Version { OriginalPackageManifest.PackageVersion } is currently installed." );
+
+				WriteFailureMessage();
+				WaitForExit();
+
 				return;
 			}
 
@@ -65,40 +82,68 @@ namespace AerosoftCRJInteractionFixer
 			if ( Directory.Exists( PatchPackagePath ) )
 			{
 				Log( $"Removing existing instance of package '{ PatchPackageName }'" );
-				Directory.Delete( PatchPackagePath, true );
+				DeleteDirectory( PatchPackagePath );
 			}
 
 			CreateDirectory( PatchPackagePath );
 
 			Log( "Processing Model Behavior Defs" );
+			if ( !ProcessModelBehaviorDefs( OriginalPackagePath, PatchPackagePath ) )
+			{
+				WriteFailureMessage();
+				WaitForExit();
 
-			// Copy model behavior templates required by the patch
-			CreateDirectory( Path.Combine( PatchPackagePath, "ModelBehaviorDefs" ) );
+				return;
+			}
 
-			CopyFile(
-				Path.Combine( OriginalPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ),
-				Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" )
-			);
-
-			// Apply the push knob template to the base CRJ templates file
-			Log( $"Applying patch to { Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ) }" );
-			File.AppendAllText( Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ), Resources.ASCRJ_Knob_Infinite_Push_Template );
-
-			// Copy all interior model behavior files into their respective directories
 			Log( "Processing 'CRJ550_Interior.xml' files" );
-			ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_550", "CRJ550_Interior.xml" );
+			if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_550", "CRJ550_Interior.xml" ) )
+			{
+				WriteFailureMessage();
+				WaitForExit();
+
+				return;
+			}
 
 			Log( "Processing 'CRJ700_Interior.xml' files" );
-			ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_700", "CRJ700_Interior.xml" );
+			if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_700", "CRJ700_Interior.xml" ) )
+			{
+				WriteFailureMessage();
+				WaitForExit();
+
+				return;
+			}
 
 			GenerateLayout( PatchPackagePath );
 			GenerateManifest( PatchPackagePath, OriginalPackageManifest );
 
-			WriteExitMessage();
+			WriteSuccessMessage();
+			WaitForExit();
 		}
 
-		static void ProcessModelBehaviors( string OriginalPackagePath, string PatchPackagePath, string AirplaneId, string ModelBehaviorFileName )
+		static bool ProcessModelBehaviorDefs( string OriginalPackagePath, string PatchPackagePath )
 		{
+			CreateDirectory( Path.Combine( PatchPackagePath, "ModelBehaviorDefs" ) );
+
+			var OriginalPackageTemplatesPath = Path.Combine( OriginalPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" );
+			if ( !File.Exists( OriginalPackageTemplatesPath ) )
+			{
+				LogError( $"Required file '{ OriginalPackageTemplatesPath }' could not be found." );
+				return false;
+			}
+
+			CopyFile( OriginalPackageTemplatesPath, Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ) );
+
+			Log( $"Applying patch to { Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ) }" );
+			File.AppendAllText( Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ), Resources.ASCRJ_Knob_Infinite_Push_Template );
+
+			return true;
+		}
+
+		static bool ProcessModelBehaviors( string OriginalPackagePath, string PatchPackagePath, string AirplaneId, string ModelBehaviorFileName )
+		{
+			int ModelsProcessed = 0;
+
 			var ModificationsList = JsonSerializer.Deserialize< ModelBehaviorModifications >( Resources.ModelBehaviorModifications );
 
 			XmlReaderSettings ReaderSettings = new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment };
@@ -111,7 +156,14 @@ namespace AerosoftCRJInteractionFixer
 
 				Log( $"Processing model '{ ModelFolderName }'" );
 
-				var Reader = XmlReader.Create( Path.Combine( OriginalPackageModelDirectory, ModelBehaviorFileName ), ReaderSettings );
+				var ModelXmlPath = Path.Combine( OriginalPackageModelDirectory, ModelBehaviorFileName );
+				if ( !File.Exists( ModelXmlPath ) )
+				{
+					LogError( $"Required file '{ ModelXmlPath }' could not be found." );
+					continue;
+				}
+
+				var Reader = XmlReader.Create( ModelXmlPath, ReaderSettings );
 
 				// Create the destination folder for the current model
 				var PatchPackageModelDirectory = Path.Combine( PatchPackagePath, $@"SimObjects\Airplanes\{ AirplaneId }\{ ModelFolderName }" );
@@ -167,9 +219,18 @@ namespace AerosoftCRJInteractionFixer
 				}
 
 				ModelBehaviorXML.Save( XmlWriter );
-
 				WriteFile( Path.Combine( PatchPackageModelDirectory, ModelBehaviorFileName ), StringWriter.ToString(), Encoding.UTF8 );
+
+				++ModelsProcessed;
 			}
+
+			if ( ModelsProcessed == 0 )
+			{
+				LogError( $"Failed to process any models for airplane '{ AirplaneId }'" );
+				return false;
+			}
+
+			return true;
 		}
 
 		static void GenerateLayout( string PatchPackagePath )
@@ -235,6 +296,15 @@ namespace AerosoftCRJInteractionFixer
 		{
 			Log( $"Creating directory: '{ Path }'" );
 			Directory.CreateDirectory( Path );
+		}
+
+		static void DeleteDirectory( string Path )
+		{
+			if ( Directory.Exists( Path ) )
+			{
+				Log( $"Deleting directory: '{ Path }'" );
+				Directory.Delete( Path, true );
+			}
 		}
 
 		static void WriteFile( string Path, string Text )
@@ -318,10 +388,20 @@ namespace AerosoftCRJInteractionFixer
 			Console.WriteLine();
 		}
 
-		static void WriteExitMessage()
+		static void WriteFailureMessage()
+		{
+			Console.WriteLine();
+			Log( "Package generation failed" );
+		}
+
+		static void WriteSuccessMessage()
 		{
 			Console.WriteLine();
 			Log( "Package generated successfully!" );
+		}
+
+		static void WaitForExit()
+		{
 			Console.Write( "Press any key to exit... " );
 			Console.ReadKey();
 			Console.WriteLine();

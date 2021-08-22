@@ -16,11 +16,17 @@ Fixed Elements
 - NAV SOURCE PUSH X-SIDE button
 - BARO PUSH STD button
 
+System Requirements
+-------------------
+- Aerosoft CRJ 1.0.6 (MSFS)
+- .NET Core 3.1 Runtime (download [here](https://dotnet.microsoft.com/download))
+
 Usage
 -----
 1. Download the latest release
-2. Run AerosoftCRJInteractionFixer.exe
-3. Proceed through the application until it exits
+2. Extract the zip archive to a location of your choice
+3. Run the extracted executable `AerosoftCRJInteractionFixer.exe`
+4. Proceed through the application until it exits
 
 If you wish to uninstall the fix at any point, simply delete the `aerosoft-crj-interaction-fix` package from your community folder.
 

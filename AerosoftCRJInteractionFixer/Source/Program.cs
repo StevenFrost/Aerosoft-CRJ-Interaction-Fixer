@@ -374,13 +374,15 @@ namespace AerosoftCRJInteractionFixer
 		static string GetPackagePath( PackageSource Source, string PackageName )
 		{
 			var PackagesPath = GetPackagesPath();
-
-			switch ( Source )
+			if ( PackagesPath != null )
 			{
-				case PackageSource.Community:
-					return Path.Combine( PackagesPath, @"Community", PackageName );
-				case PackageSource.Official:
-					return Path.Combine( PackagesPath, @"Official\OneStore", PackageName );
+				switch ( Source )
+				{
+					case PackageSource.Community:
+						return Path.Combine( PackagesPath, @"Community", PackageName );
+					case PackageSource.Official:
+						return Path.Combine( PackagesPath, @"Official\OneStore", PackageName );
+				}
 			}
 
 			return null;

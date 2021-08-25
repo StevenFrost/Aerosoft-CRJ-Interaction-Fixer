@@ -14,7 +14,8 @@ namespace AerosoftCRJInteractionFixer
 		static string OriginalPackageName = "aerosoft-crj";
 		static string PatchPackageName = "aerosoft-crj-interaction-fix";
 
-		static string OriginalPackageVersionRequirement = "1.0.6";
+		static string OriginalPackageVersionRequirement_Community = "1.0.6";
+		static string OriginalPackageVersionRequirement_Marketplace = "1.0.9";
 		static string PatchPackageVersion = "1.0.0";
 
 		static JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
@@ -35,11 +36,14 @@ namespace AerosoftCRJInteractionFixer
 
 			Log( $"Locating package '{ OriginalPackageName }'" );
 
+			bool MarketplacePackage = false;
+
 			// Validate that the CRJ exists in the community folder
 			var OriginalPackagePath = GetPackagePath( PackageSource.Community, OriginalPackageName );
 			if ( !Directory.Exists( OriginalPackagePath ) )
 			{
 				OriginalPackagePath = GetPackagePath( PackageSource.Official, OriginalPackageName );
+				MarketplacePackage = true;
 			}
 
 			if ( !Directory.Exists( OriginalPackagePath ) )
@@ -54,7 +58,9 @@ namespace AerosoftCRJInteractionFixer
 
 			Log( "Checking package dependencies" );
 
-			// Ensure the version is 1.0.6
+			// Ensure the version is 1.0.6 or 1.0.9, depending on the package source
+			string OriginalPackageVersionRequirement = MarketplacePackage ? OriginalPackageVersionRequirement_Marketplace : OriginalPackageVersionRequirement_Community;
+
 			var OriginalPackageManifestPath = Path.Combine( OriginalPackagePath, "manifest.json" );
 			if ( !File.Exists( OriginalPackageManifestPath ) )
 			{
@@ -121,7 +127,7 @@ namespace AerosoftCRJInteractionFixer
 			}
 
 			GenerateLayout( PatchPackagePath );
-			GenerateManifest( PatchPackagePath, OriginalPackageManifest );
+			GenerateManifest( PatchPackagePath, OriginalPackageManifest, OriginalPackageVersionRequirement );
 
 			WriteSuccessMessage();
 			WaitForExit();
@@ -264,7 +270,7 @@ namespace AerosoftCRJInteractionFixer
 			);
 		}
 
-		static void GenerateManifest( string PatchPackagePath, Manifest OriginalPackageManifest )
+		static void GenerateManifest( string PatchPackagePath, Manifest OriginalPackageManifest, string OriginalPackageVersionRequirement )
 		{
 			Log( "Creating package manifest" );
 
@@ -390,7 +396,12 @@ namespace AerosoftCRJInteractionFixer
 
 		static void WriteWelcomeMessage()
 		{
-			Console.Write( Resources.WelcomeMessage.Replace( "{OriginalPackageName}", OriginalPackageName ).Replace( "{PatchPackageName}", PatchPackageName ).Replace( "{OriginalPackageVersionRequirement}", OriginalPackageVersionRequirement ) );
+			Console.Write( Resources.WelcomeMessage
+				.Replace( "{OriginalPackageName}", OriginalPackageName )
+				.Replace( "{PatchPackageName}", PatchPackageName )
+				.Replace( "{OriginalPackageVersionRequirement_Community}", OriginalPackageVersionRequirement_Community )
+				.Replace( "{OriginalPackageVersionRequirement_Marketplace}", OriginalPackageVersionRequirement_Marketplace )
+			);
 			Console.ReadKey();
 			Console.WriteLine();
 			Console.WriteLine();

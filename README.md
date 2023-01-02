@@ -18,7 +18,7 @@ Fixed Elements
 
 System Requirements
 -------------------
-- Aerosoft CRJ 1.0.6 (MSFS)
+- Aerosoft CRJ
 - .NET Core 3.1 Runtime (download [here](https://dotnet.microsoft.com/download))
 
 Usage

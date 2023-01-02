@@ -19,7 +19,7 @@ namespace AerosoftCRJInteractionFixer
 		static readonly string[] SupportedVersions_Community = { "1.0.17" };
 		static readonly string[] SupportedVersions_Marketplace = { "1.0.17" };
 
-		static readonly string PatchPackageVersion = "1.0.0";
+		static readonly string PatchPackageVersion = "1.0.2";
 
 		static JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
 		{
@@ -145,6 +145,34 @@ namespace AerosoftCRJInteractionFixer
 				WaitForExit();
 
 				return;
+			}
+
+			if ( Directory.Exists( Path.Combine( OriginalPackagePath, $@"SimObjects\Airplanes\Aerosoft_CRJ_900" ) ) )
+			{
+				Log( "Processing 'CRJ900_Interior.xml' files" );
+				if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_900", "CRJ900_Interior.xml" ) )
+				{
+					DeleteDirectory( PatchPackagePath );
+
+					WriteFailureMessage();
+					WaitForExit();
+
+					return;
+				}
+			}
+
+			if ( Directory.Exists( Path.Combine( OriginalPackagePath, $@"SimObjects\Airplanes\Aerosoft_CRJ_1000" ) ) )
+			{
+				Log( "Processing 'CRJ1000_Interior.xml' files" );
+				if ( !ProcessModelBehaviors( OriginalPackagePath, PatchPackagePath, "Aerosoft_CRJ_1000", "CRJ1000_Interior.xml" ) )
+				{
+					DeleteDirectory( PatchPackagePath );
+
+					WriteFailureMessage();
+					WaitForExit();
+
+					return;
+				}
 			}
 
 			GenerateLayout( PatchPackagePath );

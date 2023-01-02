@@ -19,7 +19,7 @@ namespace AerosoftCRJInteractionFixer.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -96,7 +96,7 @@ namespace AerosoftCRJInteractionFixer.Properties {
         ///
         ///This application will generate a new package in your Microsoft Flight Simulator community folder which will fix the interaction issues with the MSFS Aerosoft CRJ introduced in Sim Update 5. No edits will be made to the original &apos;{OriginalPackageName}&apos; package during this process. This fix can be completely undone by removing the &apos;{PatchPackageName}&apos; package from your community folder.
         ///
-        ///Requirements: Aerosoft CRJ {OriginalPackageVersionRequi [rest of string was truncated]&quot;;.
+        ///Press any key to start....
         /// </summary>
         internal static string WelcomeMessage {
             get {

@@ -130,8 +130,6 @@
 
 This application will generate a new package in your Microsoft Flight Simulator community folder which will fix the interaction issues with the MSFS Aerosoft CRJ introduced in Sim Update 5. No edits will be made to the original '{OriginalPackageName}' package during this process. This fix can be completely undone by removing the '{PatchPackageName}' package from your community folder.
 
-Requirements: Aerosoft CRJ {OriginalPackageVersionRequirement_Community}/{OriginalPackageVersionRequirement_Marketplace} (MSFS)
-
 Press any key to start...</value>
   </data>
 </root>

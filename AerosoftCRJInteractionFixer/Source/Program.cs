@@ -1,6 +1,8 @@
 ﻿using AerosoftCRJInteractionFixer.Properties;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -11,12 +13,13 @@ namespace AerosoftCRJInteractionFixer
 {
 	class Program
 	{
-		static string OriginalPackageName = "aerosoft-crj";
-		static string PatchPackageName = "aerosoft-crj-interaction-fix";
+		static readonly string OriginalPackageName = "aerosoft-crj";
+		static readonly string PatchPackageName = "aerosoft-crj-interaction-fix";
 
-		static string OriginalPackageVersionRequirement_Community = "1.0.6";
-		static string OriginalPackageVersionRequirement_Marketplace = "1.0.9";
-		static string PatchPackageVersion = "1.0.0";
+		static readonly string[] SupportedVersions_Community = { "1.0.17" };
+		static readonly string[] SupportedVersions_Marketplace = { "1.0.17" };
+
+		static readonly string PatchPackageVersion = "1.0.0";
 
 		static JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
 		{
@@ -38,7 +41,7 @@ namespace AerosoftCRJInteractionFixer
 
 			bool MarketplacePackage = false;
 
-			// Validate that the CRJ exists in the community folder
+			// Validate that the CRJ package exists
 			var OriginalPackagePath = GetPackagePath( PackageSource.Community, OriginalPackageName );
 			if ( !Directory.Exists( OriginalPackagePath ) )
 			{
@@ -58,8 +61,8 @@ namespace AerosoftCRJInteractionFixer
 
 			Log( "Checking package dependencies" );
 
-			// Ensure the version is 1.0.6 or 1.0.9, depending on the package source
-			string OriginalPackageVersionRequirement = MarketplacePackage ? OriginalPackageVersionRequirement_Marketplace : OriginalPackageVersionRequirement_Community;
+			// Ensure the version is correct based on the package source
+			string[] SupportedVersions = MarketplacePackage ? SupportedVersions_Marketplace : SupportedVersions_Community;
 
 			var OriginalPackageManifestPath = Path.Combine( OriginalPackagePath, "manifest.json" );
 			if ( !File.Exists( OriginalPackageManifestPath ) )
@@ -73,14 +76,32 @@ namespace AerosoftCRJInteractionFixer
 			}
 
 			var OriginalPackageManifest = JsonSerializer.Deserialize< Manifest >( File.ReadAllText( OriginalPackageManifestPath ) );
-			if ( OriginalPackageManifest.PackageVersion != OriginalPackageVersionRequirement )
+			if ( !SupportedVersions.Contains( OriginalPackageManifest.PackageVersion ) )
 			{
-				LogError( $"The Aerosoft CRJ must be version { OriginalPackageVersionRequirement }. Version { OriginalPackageManifest.PackageVersion } is currently installed." );
+				Console.WriteLine();
 
-				WriteFailureMessage();
-				WaitForExit();
+				Log( $"This tool has been tested with the following Aerosoft CRJ versions:" );
+				foreach ( var Version in SupportedVersions )
+				{
+					Log( "\t" + Version );
+				}
 
-				return;
+				Console.WriteLine();
+
+				Log( $"Version { OriginalPackageManifest.PackageVersion } is currently installed. Do you want to attempt to generate a fix anyway?" );
+				Log( "Press the 'Y' key if you would like to proceed." );
+
+				var PressedKey = Console.ReadKey();
+				Console.WriteLine();
+				Console.WriteLine();
+
+				if ( PressedKey.Key != ConsoleKey.Y )
+				{
+					WriteFailureMessage();
+					WaitForExit();
+
+					return;
+				}
 			}
 
 			// Clear out any previous patch packages
@@ -127,7 +148,7 @@ namespace AerosoftCRJInteractionFixer
 			}
 
 			GenerateLayout( PatchPackagePath );
-			GenerateManifest( PatchPackagePath, OriginalPackageManifest, OriginalPackageVersionRequirement );
+			GenerateManifest( PatchPackagePath, OriginalPackageManifest );
 
 			WriteSuccessMessage();
 			WaitForExit();
@@ -144,10 +165,36 @@ namespace AerosoftCRJInteractionFixer
 				return false;
 			}
 
-			CopyFile( OriginalPackageTemplatesPath, Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ) );
+			var PatchPackageTemplatesPath = Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" );
+			CopyFile( OriginalPackageTemplatesPath, PatchPackageTemplatesPath );
 
-			Log( $"Applying patch to { Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ) }" );
-			File.AppendAllText( Path.Combine( PatchPackagePath, @"ModelBehaviorDefs\ASCRJ_Templates.xml" ), Resources.ASCRJ_Knob_Infinite_Push_Template );
+			Log( $"Applying patch to { PatchPackageTemplatesPath }" );
+
+			var PatchPackageTemplatesXML = new List< string >( File.ReadAllLines( PatchPackageTemplatesPath ) );
+
+			bool RemovedEndTag = false;
+			int EndTagIndex = PatchPackageTemplatesXML.LastIndexOf( "</ModelBehaviors>" );
+			if ( EndTagIndex != -1 )
+			{
+				PatchPackageTemplatesXML.RemoveAt( EndTagIndex );
+				RemovedEndTag = true;
+			}
+
+			using ( var PatchTemplateReader = new StringReader( Resources.ASCRJ_Knob_Infinite_Push_Template ) )
+			{
+				string Line;
+				while ( ( Line = PatchTemplateReader.ReadLine() ) is object )
+				{
+					PatchPackageTemplatesXML.Add( Line );
+				}
+			}
+
+			if ( RemovedEndTag )
+			{
+				PatchPackageTemplatesXML.Add( "</ModelBehaviors>" );
+			}
+
+			File.WriteAllLines( PatchPackageTemplatesPath, PatchPackageTemplatesXML );
 
 			return true;
 		}
@@ -217,17 +264,30 @@ namespace AerosoftCRJInteractionFixer
 					KnobAnimNameNode.InnerText = ModificationEntry.KnobAnimName;
 					KnobNodeTemplate.AppendChild( KnobAnimNameNode );
 
-					var KnobChangeNameNode = ModelBehaviorXML.CreateNode( "element", "KNOB_CHANGE_NAME", "" );
+					var KnobChangeNameNode = ModelBehaviorXML.CreateNode( "element", "CHANGE_VAR_NAME", "" );
 					KnobChangeNameNode.InnerText = ModificationEntry.KnobChangeName;
 					KnobNodeTemplate.AppendChild( KnobChangeNameNode );
 
-					var PushAnimNameNode = ModelBehaviorXML.CreateNode( "element", "PUSH_ANIM_NAME", "" );
+					var PushAnimNameNode = ModelBehaviorXML.CreateNode( "element", "PB_ANIM_NAME", "" );
 					PushAnimNameNode.InnerText = ModificationEntry.PushAnimName;
 					KnobNodeTemplate.AppendChild( PushAnimNameNode );
 
-					var PushNameNode = ModelBehaviorXML.CreateNode( "element", "PUSH_NAME", "" );
+					var PushNameNode = ModelBehaviorXML.CreateNode( "element", "PB_TRIGGER_NAME", "" );
 					PushNameNode.InnerText = ModificationEntry.PushName;
 					KnobNodeTemplate.AppendChild( PushNameNode );
+
+					// Legacy compatibility nodes
+					var LegacyKnobChangeNameNode = ModelBehaviorXML.CreateNode( "element", "KNOB_CHANGE_NAME", "" );
+					LegacyKnobChangeNameNode.InnerText = ModificationEntry.KnobChangeName;
+					KnobNodeTemplate.AppendChild( LegacyKnobChangeNameNode );
+
+					var LegacyPushAnimNameNode = ModelBehaviorXML.CreateNode( "element", "PUSH_ANIM_NAME", "" );
+					LegacyPushAnimNameNode.InnerText = ModificationEntry.PushAnimName;
+					KnobNodeTemplate.AppendChild( LegacyPushAnimNameNode );
+
+					var LegacyPushNameNode = ModelBehaviorXML.CreateNode( "element", "PUSH_NAME", "" );
+					LegacyPushNameNode.InnerText = ModificationEntry.PushName;
+					KnobNodeTemplate.AppendChild( LegacyPushNameNode );
 				}
 
 				ModelBehaviorXML.Save( XmlWriter );
@@ -270,7 +330,7 @@ namespace AerosoftCRJInteractionFixer
 			);
 		}
 
-		static void GenerateManifest( string PatchPackagePath, Manifest OriginalPackageManifest, string OriginalPackageVersionRequirement )
+		static void GenerateManifest( string PatchPackagePath, Manifest OriginalPackageManifest )
 		{
 			Log( "Creating package manifest" );
 
@@ -283,7 +343,7 @@ namespace AerosoftCRJInteractionFixer
 				Dependencies = {
 					new Dependency {
 						PackageName = OriginalPackageName,
-						PackageVersion = OriginalPackageVersionRequirement
+						PackageVersion = OriginalPackageManifest.PackageVersion
 					}
 				}
 			};
@@ -399,8 +459,6 @@ namespace AerosoftCRJInteractionFixer
 			Console.Write( Resources.WelcomeMessage
 				.Replace( "{OriginalPackageName}", OriginalPackageName )
 				.Replace( "{PatchPackageName}", PatchPackageName )
-				.Replace( "{OriginalPackageVersionRequirement_Community}", OriginalPackageVersionRequirement_Community )
-				.Replace( "{OriginalPackageVersionRequirement_Marketplace}", OriginalPackageVersionRequirement_Marketplace )
 			);
 			Console.ReadKey();
 			Console.WriteLine();
